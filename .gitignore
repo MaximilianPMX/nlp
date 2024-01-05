@@ -1,4 +1,4 @@
-# Byte-compiled / optimized / DLL files
+# Byte-compiled / optimized / packaged code
 __pycache__/
 *.py[cod]
 *$py.class
@@ -7,29 +7,65 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-.Python
-build/
+.eggs/
 dist/
-*.egg-info/
+build/
 
 # PyInstaller
-*.manifest
-*.spec
+*-frozen
+*-standalone
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# mkdocs
+/site
 
 # Environments
 .env
 .venv
 venv/
-env.bak/
-venv.bak/
+env/
+ENV/
 
-# OS generated files
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.sock
+
+# flake8
+.flake8
+
+# pytest
+.pytest_cache/
+
+# IPython
+ipython_config.py
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Temp files automatically created by jupyter notebook
+*.ipynb.save
+
+# Other temporary files
+*~
+*.swp
+*.bak
+*.tmp
+
+# Editors (VS Code for example)
+.vscode/*
+
+# OS generated files #
 .DS_Store
 Thumbs.db
 
-#private documents
+# Private Doc Directory
+private_doc/
 private_doc/*
 *.pyc
