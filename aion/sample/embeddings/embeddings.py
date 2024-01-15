@@ -1,53 +1,57 @@
-from aion.encoder.infersent import InferSent
+import os
 import torch
 
+from aion.encoder.infersent import InferSent
+from aion.util import utils
+
 class EmbeddingGenerator:
-    def __init__(self, model_path, w2v_path, device='cpu'):
-        self.model_path = model_path
+    def __init__(self, model_version=1, w2v_path=None, model_path=None):
+        # Initialize embedding generator
+        self.model_version = model_version
         self.w2v_path = w2v_path
-        self.device = device
-        self.model = None
+        self.model_path = model_path
+        self.infersent = None
 
     def load_model(self):
-        try:
-            V = 2
-            MODEL_PATH = self.model_path
-            W2V_PATH = self.w2v_path
+        # Load the InferSent model
+        params_model = {'bsize': 64, 'word_emb_dim': 300, 'enc_lstm_dim': 2048, # Changed from 4096 ( halved the lstm layer size to reduce memory requirements.)
+                        'pool_type': 'max', 'dpout_model': 0.0, 'version': self.model_version}
+        self.infersent = InferSent(self.model_version, params_model)
+        self.infersent.load_state_dict(torch.load(self.model_path))
+        self.infersent.set_w2v_path(self.w2v_path)
 
-            infersent = InferSent(V, model_path=MODEL_PATH)
-            infersent.load_state_dict(torch.load(MODEL_PATH, map_location=torch.device(self.device)))
-            infersent.set_w2v_path(W2V_PATH)
-            infersent.build_vocab_k_words(K=100000)
-
-            self.model = infersent.to(self.device)
-            print("Model loaded successfully.")
-        except Exception as e:
-            print(f"Error loading model: {e}")
-            self.model = None
+    def build_vocab(self, sentences, tokenize=False):
+        # Build vocabulary for the sentences
+        self.infersent.build_vocab(sentences, tokenize=tokenize)
 
     def generate_embeddings(self, sentences):
-        if self.model is None:
-            print("Model not loaded. Please load the model first.")
-            return None
-        try:
-            embeddings = self.model.encode(sentences, bsize=128, tokenize=False, verbose=False)
-            return embeddings
-        except Exception as e:
-            print(f"Error generating embeddings: {e}")
-            return None
-
+        # Generate embeddings for the input sentences
+        embeddings = self.infersent.encode(sentences, bsize=128, tokenize=False, verbose=False)
+        return embeddings
 
 if __name__ == '__main__':
-    # Example Usage (replace with your actual paths)
-    model_path = 'encoder/infersent.allnli.pickle'
-    w2v_path = 'encoder/fasttext.42B.300d.txt'
-    
-    embedding_generator = EmbeddingGenerator(model_path, w2v_path, device='cpu')
+    # Example Usage
+    RESOURCES_PATH = 'aion/sample/resources'
+    W2V_PATH = os.path.join(RESOURCES_PATH, 'glove.840B.300d.txt')
+    MODEL_PATH = os.path.join(RESOURCES_PATH, 'infersent1.pth')
+    SAMPLE_TEXT_1 = os.path.join(RESOURCES_PATH, 'sample_text_1.txt')
+    SAMPLE_TEXT_2 = os.path.join(RESOURCES_PATH, 'sample_text_2.txt')
+
+    # Load sample sentences from files
+    sentences1 = utils.load_sentences(SAMPLE_TEXT_1)
+    sentences2 = utils.load_sentences(SAMPLE_TEXT_2)
+    sentences = sentences1 + sentences2
+
+    # Initialize EmbeddingGenerator
+    embedding_generator = EmbeddingGenerator(w2v_path=W2V_PATH, model_path=MODEL_PATH)
+
+    # Load the model
     embedding_generator.load_model()
 
-    sentences = ['This is the first sentence.', 'This is the second sentence.']
+    # Build vocabulary
+    embedding_generator.build_vocab(sentences)
+
+    # Generate embeddings
     embeddings = embedding_generator.generate_embeddings(sentences)
 
-    if embeddings is not None:
-        print("Embeddings generated successfully:")
-        print(embeddings)
+    print("Embeddings shape:", embeddings.shape)

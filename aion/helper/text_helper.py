@@ -1,24 +1,21 @@
+import re
+
 def clean_text(text):
-    """Placeholder function for cleaning text.
-
-    Args:
-        text (str): The input text.
-
-    Returns:
-        str: Cleaned text (currently returns the original text).
-    """
-    # Placeholder implementation: return the original text.
+    # Remove special characters and extra spaces
+    text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
+    text = re.sub(r'\s+', ' ', text).strip()
     return text
 
 
-def load_data(file_path):
-    """Placeholder function for loading data from a file.
+def tokenize(text):
+    # Simple tokenization (split by space)
+    return text.split()
 
-    Args:
-        file_path (str): The path to the data file.
 
-    Returns:
-        list: A list of data items (currently returns an empty list).
-    """
-    # Placeholder implementation: return an empty list.
-    return []
+if __name__ == '__main__':
+    # Example Usage
+    sample_text = "This is a sample text with some special characters! and extra   spaces."
+    cleaned_text = clean_text(sample_text)
+    print("Cleaned text:", cleaned_text)
+    tokens = tokenize(cleaned_text)
+    print("Tokens:", tokens)

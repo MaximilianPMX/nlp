@@ -1,30 +1,49 @@
-from aion.sample.preprocessing.preprocessing import preprocess_text
-from aion.sample.embeddings.embeddings import generate_embeddings
-from aion.encoder.infersent import InferSent
+import os
+from aion.sample.embeddings.embeddings import EmbeddingGenerator
+from aion.sample.preprocessing.preprocessing import TextPreprocessor
+from aion.util import utils
 
-# Sample sentences
-sentences = [
-    "This is the first sentence.",
-    "Here is another sentence to embed.",
-    "A third sentence for demonstration."
-]
+# Define paths to resources
+RESOURCES_PATH = 'aion/sample/resources'
+W2V_PATH = os.path.join(RESOURCES_PATH, 'glove.840B.300d.txt')
+MODEL_PATH = os.path.join(RESOURCES_PATH, 'infersent1.pth')
+SAMPLE_TEXT_1 = os.path.join(RESOURCES_PATH, 'sample_text_1.txt')
+SAMPLE_TEXT_2 = os.path.join(RESOURCES_PATH, 'sample_text_2.txt')
 
-# Preprocessing
-print("Preprocessing sentences...")
-preprocessed_sentences = [preprocess_text(sentence) for sentence in sentences]
-print("Preprocessed sentences:", preprocessed_sentences)
+# Load sample sentences
+sentences1 = utils.load_sentences(SAMPLE_TEXT_1)
+sentences2 = utils.load_sentences(SAMPLE_TEXT_2)
+sentences = sentences1 + sentences2
 
-# Load InferSent model (replace with your actual path)
-print("Loading InferSent model...")
-infersent = InferSent(model_version=1)
-infersent.load_model(path='encoder/infersent1.pth') # replace
-infersent.set_w2v_path(path='fasttext/crawl-300d-2M.vec') # replace
-infersent.build_vocab(preprocessed_sentences, tokenize=False)
+# --- Text Preprocessing ---#
 
-# Generate embeddings
-print("Generating embeddings...")
-embeddings = generate_embeddings(infersent, preprocessed_sentences)
+# Initialize the text preprocessor
+text_preprocessor = TextPreprocessor()
 
-# Print embeddings
+# Preprocess the sentences
+cleaned_sentences = [text_preprocessor.preprocess(sentence) for sentence in sentences]
+
+# Tokenize the sentences
+tokenized_sentences = [text_preprocessor.tokenize(sentence) for sentence in cleaned_sentences]
+
+# Print some sample preprocessed and tokenized sentences
+print("Original sentence:", sentences[0])
+print("Cleaned sentence:", cleaned_sentences[0])
+print("Tokenized sentence:", tokenized_sentences[0])
+
+# --- Embedding Generation --- #
+
+# Initialize the embedding generator
+embedding_generator = EmbeddingGenerator(w2v_path=W2V_PATH, model_path=MODEL_PATH)
+
+# Load the InferSent model
+embedding_generator.load_model()
+
+# Build the vocabulary
+embedding_generator.build_vocab(sentences)
+
+# Generate embeddings for the cleaned sentences
+embeddings = embedding_generator.generate_embeddings(cleaned_sentences)
+
+# Print the shape of the embeddings
 print("Embeddings shape:", embeddings.shape)
-print("First sentence embedding:", embeddings[0])

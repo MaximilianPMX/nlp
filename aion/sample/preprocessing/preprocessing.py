@@ -1,28 +1,38 @@
-import nltk
-import re
+import os
+from aion.helper import text_helper
+from aion.util import utils
 
-
-class Preprocessor:
-    def __init__(self, lower=True, tokenize=True):
-        self.lower = lower
-        self.tokenize = tokenize
+class TextPreprocessor:
+    def __init__(self):
+        # Initialize TextPreprocessor
+        pass
 
     def preprocess(self, text):
-        if self.lower:
-            text = text.lower()
-        if self.tokenize:
-            text = self.tokenize_text(text)
-        return text
+        # Preprocess the input text
+        cleaned_text = text_helper.clean_text(text)
+        return cleaned_text
 
-    def tokenize_text(self, text):
-        text = re.sub(r'[^\w\s]', '', text)
-        tokens = nltk.word_tokenize(text)
+    def tokenize(self, text):
+        # Tokenize preprocessed text
+        tokens = text_helper.tokenize(text)
         return tokens
 
 if __name__ == '__main__':
-    # Simple test case
-    processor = Preprocessor()
-    text = "This is a Sample Text!"
-    preprocessed_text = processor.preprocess(text)
-    print(f"Original text: {text}")
-    print(f"Preprocessed text: {preprocessed_text}")
+    # Example Usage
+    RESOURCES_PATH = 'aion/sample/resources'
+    SAMPLE_TEXT_1 = os.path.join(RESOURCES_PATH, 'sample_text_1.txt')
+
+    # Load sample sentences
+    sentences = utils.load_sentences(SAMPLE_TEXT_1)
+    sample_text = sentences[0]
+
+    # Initialize TextPreprocessor
+    preprocessor = TextPreprocessor()
+
+    # Preprocess the text
+    cleaned_text = preprocessor.preprocess(sample_text)
+    print("Cleaned text:", cleaned_text)
+
+    # Tokenize the text
+    tokens = preprocessor.tokenize(cleaned_text)
+    print("Tokens:", tokens)
