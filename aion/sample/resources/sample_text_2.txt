@@ -1,0 +1,2 @@
+This is the second sample text file.
+Another line of text.
