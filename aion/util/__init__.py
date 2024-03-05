@@ -1,1 +1,3 @@
-# aion/util/__init__.py
+from .utils import log
+
+__all__ = ['log']

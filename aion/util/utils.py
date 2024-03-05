@@ -1,3 +1,5 @@
-# aion/util/utils.py
+import datetime
 
-# Add utility functions here
+def log(message):
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"[{timestamp}] {message}")
